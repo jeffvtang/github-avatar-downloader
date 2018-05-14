@@ -19,9 +19,9 @@ function getRepoContributors(repoOwner, repoName, cb) {
       var data = JSON.parse(body)
       data.forEach(function (user) {
         // console.log(user.avatar_url)
-        downloadImageByURL(user.avatar_url, './images/' + user.login + '.jpg')
+        downloadImageByURL(user.avatar_url, './images/' + user.login)
       })
-      // console.log(data)
+      console.log(data)
     }
   });
 }
