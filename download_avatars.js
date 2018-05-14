@@ -44,7 +44,7 @@ function getRepoContributors(repoOwner, repoName, cb) {
 }
 
 if (repoOwner == null || repoName == null) {
-  console.log('Error, please confirm both Repo Name and Repo Owner are correct')
+  console.log('Error, please confirm Repo Name and Repo Owner are correct')
 } else {
   getRepoContributors(repoOwner, repoOwner, function (err, res) {
     // console.log('Errors:', err);
