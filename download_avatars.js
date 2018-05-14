@@ -1,6 +1,8 @@
 const request = require('request');
 const fs = require('fs');
 const secrets = require('./secrets');
+let repoOwner = process.argv[2];
+let repoName = process.argv[3];
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
@@ -41,9 +43,12 @@ function getRepoContributors(repoOwner, repoName, cb) {
   });
 }
 
-
-getRepoContributors('jquery', 'jquery', function (err, res) {
-  // console.log('Errors:', err);
-  // console.log("Result:", res.length, ' avatars downloaded');
-  console.log('Avatars Downloded')
-});
+if (repoOwner == null || repoName == null) {
+  console.log('Error, please confirm both Repo Name and Repo Owner are correct')
+} else {
+  getRepoContributors(repoOwner, repoOwner, function (err, res) {
+    // console.log('Errors:', err);
+    // console.log("Result:", res.length, ' avatars downloaded');
+    console.log('Avatars Downloded')
+  })
+}
