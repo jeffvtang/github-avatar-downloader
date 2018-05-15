@@ -9,21 +9,15 @@ let repoName = process.argv[3];
 
 function downloadImageByURL(url, filePath) {
   request.get(url)
-    .on('error', function (err) {
-      throw err;
+    .on('error', function (accessError) {
+      console.log('Error occured while downloading image from', url)
+      throw accessError;
     })
-    // .on('response', function (response) {
-    // console.log('Response Status Code: ', response.statusCode, 'Response Message', response.statusMessage, 'Content Type', response.headers['content-type']);
-    // console.log('Downloading image...');
-    // })
     .pipe(fs.createWriteStream(filePath));
-  // .on('finish', function () {
-  //   console.log('Download complete.')
-  // });
 }
 
 function getRepoContributors(repoOwner, repoName, AvatarIteratorHandler) {
-  const options = {
+  const httpOptions = {
     url: 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors',
     headers: {
       'User-Agent': 'request',
@@ -31,11 +25,13 @@ function getRepoContributors(repoOwner, repoName, AvatarIteratorHandler) {
     },
   };
 
-  request(options, function (err, res, body) {
-    if (!err) {
+  console.log(httpOptions.url)
+
+  request(httpOptions, function (err, res, body) {
+    // if (!err) {
       AvatarIteratorHandler(err, body);
       // console.log(data)
-    }
+    // }
   });
 }
 
@@ -46,15 +42,19 @@ console.log('Welcome to the GitHub Avatar Downloader!');
 if (repoOwner == null || repoName == null) {
   console.log('Error, please confirm Repo Name and Repo Owner are correct')
 } else {
-  getRepoContributors(repoOwner, repoOwner, function (error, result) {
+  getRepoContributors(repoOwner, repoName, function (error, result) {
     // Parses the data from getRepoContributors function into an object
-    const data = JSON.parse(result);
+    const repoContributorsAttribute = JSON.parse(result);
     // forEach loop that passes the URL for each avatar, and the destination file path to downloagImageByURL function
-    data.forEach(function (user) {
-      // console.log(user.avatar_url)
-      downloadImageByURL(user.avatar_url, './avatars/' + user.login);
-    });
+    if (!error) {
+      repoContributorsAttribute.forEach(function (repoContributor) {
+        // console.log(user.avatar_url)
+        downloadImageByURL(repoContributor.avatar_url, './avatars/' + repoContributor.login);
+      })
+    } else {
+      console.log('Error accessing ')
+    }
     // Logs the number of avatars downloaded
-    console.log(data.length + ' avatars downloaded')
+    console.log(repoContributorsAttribute.length + ' avatars downloaded')
   })
 }
