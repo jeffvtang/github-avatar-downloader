@@ -1,6 +1,6 @@
 const request = require('request');
 const fs = require('fs');
-const secrets = require('./secrets');
+const access = require('./secrets');
 let repoOwner = process.argv[2];
 // First user input
 let repoName = process.argv[3];
@@ -21,40 +21,30 @@ function getRepoContributors(repoOwner, repoName, AvatarIteratorHandler) {
     url: 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors',
     headers: {
       'User-Agent': 'request',
-      'Authorization': 'token ' + secrets.GITHUB_TOKEN,
+      'Authorization': 'token ' + access.GITHUB_TOKEN,
     },
   };
 
-  console.log(httpOptions.url)
-
   request(httpOptions, function (err, res, body) {
-    // if (!err) {
-      AvatarIteratorHandler(err, body);
-      // console.log(data)
-    // }
+    AvatarIteratorHandler(err, body, httpOptions);
   });
 }
 
-// Greeting message when running program
 console.log('Welcome to the GitHub Avatar Downloader!');
 
-// If given an empty parameter, returns an error
 if (repoOwner == null || repoName == null) {
   console.log('Error, please confirm Repo Name and Repo Owner are correct')
 } else {
-  getRepoContributors(repoOwner, repoName, function (error, result) {
-    // Parses the data from getRepoContributors function into an object
-    const repoContributorsAttribute = JSON.parse(result);
-    // forEach loop that passes the URL for each avatar, and the destination file path to downloagImageByURL function
-    if (!error) {
-      repoContributorsAttribute.forEach(function (repoContributor) {
-        // console.log(user.avatar_url)
+  getRepoContributors(repoOwner, repoName, function (error, result, html) {
+    const repoContributors = JSON.parse(result);
+    if (Array.isArray(repoContributors) && !error) {
+      repoContributors.forEach(function (repoContributor) {
         downloadImageByURL(repoContributor.avatar_url, './avatars/' + repoContributor.login);
       })
     } else {
-      console.log('Error accessing ')
-    }
-    // Logs the number of avatars downloaded
-    console.log(repoContributorsAttribute.length + ' avatars downloaded')
+      console.log('Error accessing', html.url)
+      return
+    } 
+    console.log(repoContributors.length + ' avatars downloaded')
   })
 }
