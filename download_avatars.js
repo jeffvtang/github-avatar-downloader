@@ -36,6 +36,9 @@ if (repoOwner == null || repoName == null) {
   getRepoContributors(repoOwner, repoName, function (error, contributorsData, httpOptions) {
     const repoContributors = JSON.parse(contributorsData);
     if (Array.isArray(repoContributors) && !error) {
+      if (!fs.existsSync('./avatars')) {
+        fs.mkdirSync('./avatars');
+      }
       repoContributors.forEach(function (repoContributor) {
         downloadImageByURL(repoContributor.avatar_url, './avatars/' + repoContributor.login);
       })
